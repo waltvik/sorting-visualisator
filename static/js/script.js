@@ -11,12 +11,18 @@ function init() {
     });
     let bubble = document.querySelector("#bubble");
     bubble.addEventListener("click", function (e) {
-        util.bubbleSort(randomList);
+        console.log("bubble clicked");
+        util.sorter(randomList);
     });
-    let merge = document.querySelector("#merge");
-    merge.addEventListener("click", function (e) {
-        util.mergeSort(randomList);
+    let selection = document.querySelector("#selection");
+    selection.addEventListener("click", function (e) {
+        util.sorter2(randomList);
     });
+    let quick = document.querySelector("#quick");
+    quick.addEventListener("click", function (e) {
+        util.sorter3(randomList);
+    });
+
 }
 
 init();

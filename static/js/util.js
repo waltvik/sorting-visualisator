@@ -1,68 +1,180 @@
 import {dom} from "./dom.js";
 
+function* bubbleSort(a) { // * is magic
+    console.log("in bubble sort");
+    let swapped;
+    do {
+        console.log("in do");
+        swapped = false;
+        for (let i = 0; i < a.length - 1; i++) {
+            if (a[i] > a[i + 1]) {
+                let temp = a[i];
+                a[i] = a[i + 1];
+                a[i + 1] = temp;
+                swapped = true;
+                console.log("before yield");
+                yield swapped; // pause here
+                console.log("after yield");
+            }
+        }
+    } while (swapped);
+
+}
+
+
+function* selectionSort(arr) {
+    let minIdx, temp,
+        len = arr.length;
+    let swapped;
+    for (let i = 0; i < len; i++) {
+        swapped = false;
+        minIdx = i;
+        for (let j = i + 1; j < len; j++) {
+            if (arr[j] < arr[minIdx]) {
+                minIdx = j;
+            }
+        }
+        temp = arr[i];
+        arr[i] = arr[minIdx];
+        arr[minIdx] = temp;
+        swapped = true;
+        console.log("before yield");
+        yield swapped; // pause here
+    }
+    //return arr;
+}
+
+var co = require('co');
+
+function swap(items, firstIndex, secondIndex){
+  var temp = items[firstIndex];
+  items[firstIndex] = items[secondIndex];
+  items[secondIndex] = temp;
+}
+
+function* partition(items, left, right) {
+  var pivot = items[Math.floor((right + left) / 2)];
+  while (left <= right) {
+    while (items[left] < pivot) { left++ }
+    while (items[right] > pivot) { right-- }
+    if (left <= right) {
+      swap(items, left, right);
+      left++;
+      right--
+    }
+    yield true
+  }
+  return left
+}
+
+function* generatorQuickSort(items, left, right) {
+  var index;
+  if (items.length > 1) {
+    left = typeof left !== "number" ? 0 : left;
+    right = typeof right !== "number" ? items.length - 1 : right;
+    index = yield* partition(items, left, right);
+    if (left < index - 1) { yield* generatorQuickSort(items, left, index - 1) }
+    if (index < right) { yield* generatorQuickSort(items, index, right) }
+  }
+  return items
+}
+
+function syncQuickSort(items) {
+  let copy = items.slice()
+  for (let operation of generatorQuickSort(copy));
+  return copy;
+}
+
+function asyncQuickSort(items, batch) {
+  // Note: using co as a temporary stand-in
+  // until async/await are available
+  return co(function*() {
+    let copy = items.slice()
+      , counter = 0
+      , tick = Promise.resolve();
+    for (let operation of generatorQuickSort(copy)) {
+      if (!batch || ++counter % batch === 0) {
+        yield tick
+      }
+    }
+    return copy;
+  })
+}
+
+var list = [];
+
+for (let i=0; i<1000; i++) {
+  list.push(Math.random())
+}
+
+console.log(syncQuickSort(list));
+
+asyncQuickSort(list, 1).then(function(sorted) {
+  console.log(sorted)
+})
+
 export let util = {
     buildRandomList: function () {
-        return [...Array(10)].map(() => Math.floor(Math.random() * 700));
+        return [...Array(100)].map(() => Math.floor(Math.random() * 700));
     },
     sleep: function (ms) {
 
         return new Promise(resolve => setTimeout(resolve, ms));
     },
-    bubbleSort: function (arr) {
-        let len = arr.length;
-        for (let i = len - 1; i >= 0; i--) {
-            for (let j = 1; j <= i; j++) {
-                util.sleep(2000).then(() => {
-                    dom.buildPick(arr);
-                    if (arr[j - 1] > arr[j]) {
-                        let temp = arr[j - 1];
-                        arr[j - 1] = arr[j];
-                        arr[j] = temp;
-                    }
-                });
+    sorter: function (arr) {
+        console.log("in util sorter");
+        let sort = bubbleSort(arr);
+        console.log("sort in sorter: " + sort);
+        console.log("sort type in sorter: " + typeof sort);
+        let requestId = 0;
 
-            }
+        // an anim function triggered every 60th of a second
+        function anim() {
+            console.log("in anim func");
+            requestId = requestAnimationFrame(anim);
+            console.log("request id: " + requestId);
+            dom.buildPick(arr);
+            sort.next(); // call next iteration of the bubbleSort function
+            cancelAnimationFrame(2600);
         }
-        return arr;
+
+        anim();
     },
-    mergeSort: function (arr) {
-        console.log("in merge sort");
-        console.log("array: " + arr);
-        let len = arr.length;
-        if (len < 2)
-            return arr;
-        let mid = Math.floor(len / 2);
-            let left = arr.slice(0, mid);
-            let right = arr.slice(mid);
-            console.log("left: " + left);console.log("right: " + right);
-        return util.merge(util.mergeSort(left), util.mergeSort(right));
+    sorter2: function (arr) {
+        console.log("in util sorter");
+        let sort = selectionSort(arr);
+        console.log("sort in sorter: " + sort);
+        console.log("sort type in sorter: " + typeof sort);
+        let requestId = 0;
 
+        // an anim function triggered every 60th of a second
+        function anim() {
+            console.log("in anim func");
+            requestId = requestAnimationFrame(anim);
+            console.log("request id: " + requestId);
+            dom.buildPick(arr);
+            sort.next(); // call next iteration of the bubbleSort function
+            cancelAnimationFrame(120);
+        }
 
+        anim();
     },
-    merge: function (left, right) {
 
-            console.log("in merge");
-            let result = [];
-            let lLen = left.length;
-            let rLen = right.length;
-            let l = 0;
-            let r = 0;
-            while (l < lLen && r < rLen) {
-                console.log("in while in merge");
-                console.log("l: " + l);
-                console.log("r: " + r);
-                if (left[l] < right[r]) {
-                    result.push(left[l++]);
-                    console.log("result if left l < right r" + result);
-                } else {
+    sorter3: function (arr) {
+        let sort = quickSort(arr, 0, (arr.length - 1));
+        let requestId = 0;
 
-                    result.push(right[r++]);
-                    console.log("result else: " + result);
-                }
-            }
-            console.log("concatenated res" + result.concat(left.slice(l)).concat(right.slice(r)));
-            dom.partlyBuildPick(result.concat(left.slice(l)).concat(right.slice(r)));
-            return result.concat(left.slice(l)).concat(right.slice(r));
+        // an anim function triggered every 60th of a second
+        function anim() {
+            requestId = requestAnimationFrame(anim);
+            console.log("request id: " + requestId);
+            dom.buildPick(arr);
+            sort.next(); // call next iteration of the bubbleSort function
+            cancelAnimationFrame(120);
+        }
 
-    }
+        anim();
+    },
+
+
 };
