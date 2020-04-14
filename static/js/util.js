@@ -122,17 +122,12 @@ export let util = {
         return new Promise(resolve => setTimeout(resolve, ms));
     },
     sorter: function (arr) {
-        console.log("in util sorter");
         let sort = bubbleSort(arr);
-        console.log("sort in sorter: " + sort);
-        console.log("sort type in sorter: " + typeof sort);
         let requestId = 0;
 
         // an anim function triggered every 60th of a second
         function anim() {
-            console.log("in anim func");
             requestId = requestAnimationFrame(anim);
-            console.log("request id: " + requestId);
             dom.buildPick(arr);
             sort.next(); // call next iteration of the bubbleSort function
             cancelAnimationFrame(2600);
@@ -141,17 +136,12 @@ export let util = {
         anim();
     },
     sorter2: function (arr) {
-        console.log("in util sorter");
         let sort = selectionSort(arr);
-        console.log("sort in sorter: " + sort);
-        console.log("sort type in sorter: " + typeof sort);
         let requestId = 0;
 
         // an anim function triggered every 60th of a second
         function anim() {
-            console.log("in anim func");
             requestId = requestAnimationFrame(anim);
-            console.log("request id: " + requestId);
             dom.buildPick(arr);
             sort.next(); // call next iteration of the bubbleSort function
             cancelAnimationFrame(120);
