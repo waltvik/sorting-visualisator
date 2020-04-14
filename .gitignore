@@ -86,6 +86,7 @@ celerybeat-schedule
 .venv
 venv/
 ENV/
+venv
 
 # Spyder project settings
 .spyderproject
@@ -146,3 +147,5 @@ fabric.properties
 ### Environment variable script ###
 setenv.sh
 setenv.ps1
+
+venv/*
