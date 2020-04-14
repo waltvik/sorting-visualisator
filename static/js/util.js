@@ -44,6 +44,7 @@ function* selectionSort(arr) {
     //return arr;
 }
 
+/*
 var co = require('co');
 
 function swap(items, firstIndex, secondIndex){
@@ -111,7 +112,7 @@ console.log(syncQuickSort(list));
 
 asyncQuickSort(list, 1).then(function(sorted) {
   console.log(sorted)
-})
+}) */
 
 export let util = {
     buildRandomList: function () {
@@ -149,7 +150,7 @@ export let util = {
 
         anim();
     },
-
+/*
     sorter3: function (arr) {
         let sort = quickSort(arr, 0, (arr.length - 1));
         let requestId = 0;
@@ -165,6 +166,6 @@ export let util = {
 
         anim();
     },
-
+*/
 
 };
